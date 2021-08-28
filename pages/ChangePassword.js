@@ -1,5 +1,5 @@
 import ChangePassword from "../components/ChangePassword"
-import CanNotChangePassword from "../components/canNotChangePassword"
+import CanNotChangePassword from "../components/CanNotChangePassword"
 import useUser from "../lib/useUser"
 import { getUserIdUseRandomStringFromDynamoDB } from "../lib/user"
 
@@ -15,7 +15,7 @@ export default function App({ randomString, userId }) {
   if (userId) {
     return <ChangePassword userId={userId} randomString={randomString} />
   } else {
-    return <CanNotChangePassword /> 
+    return <CanNotChangePassword />
   }
 }
 
@@ -24,7 +24,6 @@ export default function App({ randomString, userId }) {
  * @param {object} context queryとかそのほか色々なものが入ったオブジェクト。
  */
 export async function getServerSideProps(context) {
-  
   const randomString = context.query.auth //URLの中の?auth=""の””内をもってくる
   const data = await getUserIdUseRandomStringFromDynamoDB(randomString)
   const userId = data.Item?.userId
@@ -33,6 +32,6 @@ export async function getServerSideProps(context) {
     props: {
       randomString,
       userId: userId ? userId : null,
-    }, 
+    },
   }
 }
