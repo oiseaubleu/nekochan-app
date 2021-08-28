@@ -1,13 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 // ネコ検索関係のコンポーネント
 ///////////////////////////////////////////////////////////////////////////////////////////////
-import React, { useEffect, useState } from "react" 
+import React, { useEffect, useState } from "react"
 import InputBreed from "react-select"
 import catBreedsList from "../lib/catBreedsList.json"
 import Row from "react-bootstrap/Row"
 import CatRow from "./CatRow"
 import CatPage from "./CatPage"
-
 
 let catBreedList = catBreedsList
 
@@ -31,14 +30,13 @@ export default function CatSearch({
   isGuest,
   catInfo,
   getCats,
-  pageInfo,
+  pageInfo = {},
   pushFav,
   removeFav,
   upvoteCat,
 }) {
-
-  const [searchBreeds, setSearchBreeds] = useState() 
-  const { catPageNum, currentPage, maxPageNum } = pageInfo
+  const [searchBreeds, setSearchBreeds] = useState()
+  const { catPageNum = [], currentPage = 1, maxPageNum = 1 } = pageInfo
 
   return (
     <div>
@@ -107,7 +105,7 @@ export function SearchButton({ getCats, searchBreeds }) {
  * @param {boolean} props.isGuest ゲストユーザーかどうかのBoolean
  */
 export function CatsList({
-  catInfoArr,
+  catInfoArr = [],
   CatGreet,
   saveAsFav,
   removeFav,
