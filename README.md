@@ -49,8 +49,9 @@ project_root/
 
 `.env.local` に以下の情報を記載する。
 
-* `AWS_ACCESS_KEY_ID`: AWSのアクセスキー。DynamoDBおよびSESを使うために利用。
-* `AWS_SECRET_ACCESS_KEY`: AWSのSecret。同上。
-* `AWS_REGION`: AWSのリージョン。お好みで。
+* `AWS_ACCESS_KEY_ID_MYAPP`: AWSのアクセスキー。DynamoDBおよびSESを使うために利用。
+* `AWS_SECRET_ACCESS_KEY_MYAPP`: AWSのSecret。同上。
+* `AWS_REGION_MYAPP`: AWSのリージョン。お好みで。
+  * AWS標準の環境変数名は、Vercelデプロイ時にVercel側で予約済みの環境変数と重複してしまうため、 `_MYAPP` のサフィックスをつける。
 * `IRONSESSION_KEY`: Iron-sessionでセッションのキーとして利用する文字列。
 * `CAT_API_KEY`: [Cat API](https://thecatapi.com/) のAPI Key。
