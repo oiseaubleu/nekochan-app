@@ -2,7 +2,7 @@
 // TOP画面のコンポーネント
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-import React, { useEffect, useState } from "react" 
+import React, { useEffect, useState } from "react"
 import Container from "react-bootstrap/Container"
 import Row from "react-bootstrap/Row"
 import Col from "react-bootstrap/Col"
@@ -35,7 +35,7 @@ export default function TopPage() {
   }
 
   return (
-    <div>
+    <Container>
       <Main jumpToGuestpage={jumpToGuestpage} />
       <br></br>
       <Comment />
@@ -47,7 +47,7 @@ export default function TopPage() {
       <Link href="../jsdoc/index.html">
         <a>spec document by JSDoc</a>
       </Link>
-    </div>
+    </Container>
   )
 }
 
@@ -77,7 +77,7 @@ export function Contents({ jumpToGuestpage }) {
   return (
     <Container className="pb-5">
       <Row>
-        <Col>
+        <Col sm={12} md={6}>
           <Row>
             <About />
           </Row>
@@ -88,7 +88,7 @@ export function Contents({ jumpToGuestpage }) {
           </Row>
         </Col>
 
-        <Col>
+        <Col sm={12} md={6}>
           <Login />
         </Col>
       </Row>
@@ -152,7 +152,7 @@ export function Describe() {
   return (
     <Container>
       <Row className="pb-5">
-        <Col>
+        <Col sm={12} md={6} lg={4}>
           <Row>
             {" "}
             <Image
@@ -172,7 +172,7 @@ export function Describe() {
           </Row>
         </Col>
 
-        <Col>
+        <Col sm={12} md={6} lg={4}>
           <Row>
             {" "}
             <Image
@@ -192,7 +192,7 @@ export function Describe() {
           </Row>
         </Col>
 
-        <Col>
+        <Col sm={12} md={6} lg={4}>
           <Row>
             {" "}
             <Image
@@ -225,23 +225,23 @@ export function Describe() {
 export function Comment() {
   return (
     <Container>
-      <Row className="mx-5">
-        <Col className="px-5">
+      <Row className="mx-5" style={{ height: "100px" }}>
+        <Col className="px-5" style={{ position: "relative" }}>
           {" "}
           <Image
             src="/images/miina_round.jpg"
             alt="CommentImageOne"
-            width={100}
-            height={100}
+            layout="fill"
+            objectFit="contain"
           />
         </Col>
-        <Col className="px-5">
+        <Col className="px-5" style={{ position: "relative" }}>
           {" "}
           <Image
             src="/images/mako_round.jpg"
             alt="CommentImageTwo"
-            width={100}
-            height={100}
+            layout="fill"
+            objectFit="contain"
           />
         </Col>
       </Row>
@@ -257,6 +257,5 @@ export function Comment() {
         </Col>
       </Row>
     </Container>
-
   )
 }

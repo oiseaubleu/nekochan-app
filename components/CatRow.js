@@ -85,7 +85,7 @@ function Favorite({ fav, saveAsFav, catimage_id }) {
     buttonChange = (
       <Button variant="outline-info" onClick={() => saveAsFav(catimage_id)}>
         <Image src="/images/smallneko.png" height={32} width={32} alt="送信" />
-        fav💛
+        fav
       </Button>
     )
   }
