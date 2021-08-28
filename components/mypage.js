@@ -34,10 +34,9 @@ export default function MyPage({ isGuest }) {
   if (isGuest) {
     hikisu = undefined
   } else {
-    hikisu = { redirectTo: "/top" }
+    hikisu = { redirectTo: "/" }
   }
   const { user, mutateUser } = useUser(hikisu)
-
 
   const subId = user?.userId
 
@@ -256,7 +255,6 @@ export function MypageTabs({
             removeFav={removeFav}
             upvoteCat={upvoteCat}
           />
-         
         </Tab>
 
         <Tab eventKey="favTab" title="My Favorite">
@@ -285,7 +283,6 @@ export function MypageTabs({
             removeFav={removeFav}
             upvoteCat={upvoteCat}
           />
-       
         </Tab>
 
         <Tab eventKey="favTab" title="My Favorite">

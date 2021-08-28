@@ -21,7 +21,7 @@ export default function App({ Component, pageProps }) {
     >
       <Container>
         <h1 className="py-5">
-          <Link href="/top">
+          <Link href="/">
             <a>NEKOCHAN😺</a>
           </Link>
         </h1>
