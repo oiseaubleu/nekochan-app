@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/top.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/top.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>///////////////////////////////////////////////////////////////////////////////////////////////
+// TOP画面のコンポーネント
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+import React, { useEffect, useState } from "react" 
+import Container from "react-bootstrap/Container"
+import Row from "react-bootstrap/Row"
+import Col from "react-bootstrap/Col"
+import Button from "react-bootstrap/Button"
+import Tabs from "react-bootstrap/Tabs"
+import Tab from "react-bootstrap/Tab"
+import Alert from "react-bootstrap/Alert"
+import Image from "next/image"
+import { useRouter } from "next/router"
+import Link from "next/link"
+
+import SignUp from "./SignUp"
+import SignIn from "./SignIn"
+import useUser from "../lib/useUser"
+
+/**
+ * 【TopPage】TOPページを表示させるdefault function
+ */
+export default function TopPage() {
+  //ページ遷移のためのカスタムフック
+  const router = useRouter()
+  // ユーザ情報更新用の関数を持っておく。SignIn直後に、キャッシュを更新する必要がある。
+  const { mutateUser } = useUser()
+
+  /**
+   * 【jumpToGuestpage】ゲストページに飛ぶ関数
+   */
+  const jumpToGuestpage = (event) => {
+    router.push("/guestpage")
+  }
+
+  return (
+    &lt;div>
+      &lt;Main jumpToGuestpage={jumpToGuestpage} />
+      &lt;br>&lt;/br>
+      &lt;Comment />
+      &lt;br>&lt;/br>
+      &lt;Link href="../apiDoc">
+        &lt;a>spec document of API by Swagger&lt;/a>
+      &lt;/Link>
+      &lt;br>&lt;/br>
+      &lt;Link href="../jsdoc/index.html">
+        &lt;a>spec document by JSDoc&lt;/a>
+      &lt;/Link>
+    &lt;/div>
+  )
+}
+
+/**
+ * 【Main】ContentsとDescribeを表示させるfunciton
+ * [Contents row1:About(0.5)・GuestButton(0.5)・Login(1)/
+ * Describe row1]
+ * @module
+ * @param {function} props.jumpToGuestpage ゲストページに飛ぶ関数
+ */
+export function Main({ jumpToGuestpage }) {
+  return (
+    &lt;Row>
+      &lt;Contents jumpToGuestpage={jumpToGuestpage} />
+
+      &lt;Describe />
+    &lt;/Row>
+  )
+}
+
+/**
+ * 【Contents】About,GuestButton,Loginを表示させる
+ * @param {function} props.jumpToGuestpage ゲストページに飛ぶ関数
+ *
+ */
+export function Contents({ jumpToGuestpage }) {
+  return (
+    &lt;Container className="pb-5">
+      &lt;Row>
+        &lt;Col>
+          &lt;Row>
+            &lt;About />
+          &lt;/Row>
+
+          &lt;Row className="mt-4">
+            {" "}
+            &lt;GuestButton jumpToGuestpage={jumpToGuestpage} />
+          &lt;/Row>
+        &lt;/Col>
+
+        &lt;Col>
+          &lt;Login />
+        &lt;/Col>
+      &lt;/Row>
+    &lt;/Container>
+  )
+}
+/**
+ * 【About】左上部のアプリの説明の表示をさせる
+ */
+export function About() {
+  return (
+    &lt;div>
+      {" "}
+      &lt;h3>By the cats for the cats &lt;/h3>
+      This application is social networking service for CATS.
+      &lt;td>&lt;/td>Cats are called "nekochan" in Japanese. May you have wonderful
+      new friends!
+      &lt;br>&lt;/br>
+    &lt;/div>
+  )
+}
+/**
+ * 【GuestButton】ゲストページに飛ぶボタンを設置する
+ * @param {function} props.jumpToGuestpage ゲストページに飛ぶ関数
+ */
+export function GuestButton({ jumpToGuestpage }) {
+  return (
+    &lt;div>
+      &lt;h4>You can try to search without SIGN IN.&lt;/h4>
+
+      &lt;Button variant="success" onClick={(event) => jumpToGuestpage(event)}>
+        guest user
+      &lt;/Button>
+    &lt;/div>
+  )
+}
+
+/**
+ * 【Login】ログインと、メンバー登録のタブの表示
+ */
+export function Login() {
+  return (
+    &lt;Tabs defaultActiveKey="signIn" id="uncontrolled-tab-example">
+      &lt;Tab eventKey="signIn" title="SIGN IN">
+        {" "}
+        &lt;SignIn />
+      &lt;/Tab>
+
+      &lt;Tab eventKey="signUp" title="SIGN UP">
+        {" "}
+        &lt;SignUp />
+      &lt;/Tab>
+    &lt;/Tabs>
+  )
+}
+
+/**
+ * 【Describe】アプリ内容の説明
+ */
+export function Describe() {
+  return (
+    &lt;Container>
+      &lt;Row className="pb-5">
+        &lt;Col>
+          &lt;Row>
+            {" "}
+            &lt;Image
+              src="/images/test1.png"
+              alt="DescribeImageThree"
+              width={200}
+              height={200}
+            />
+          &lt;/Row>
+          &lt;Row className="m-5">
+            {" "}
+            &lt;h4>You can meet many cats all over the world!&lt;/h4>
+            &lt;p>
+              Now, we are in hard times...but, we can have emotional connection
+              without meawsial distance!
+            &lt;/p>
+          &lt;/Row>
+        &lt;/Col>
+
+        &lt;Col>
+          &lt;Row>
+            {" "}
+            &lt;Image
+              src="/images/test2.png"
+              alt="DescribeImageOne"
+              width={200}
+              height={200}
+            />
+          &lt;/Row>
+          &lt;Row className="m-5">
+            {" "}
+            &lt;h4>You can send a gift "🐟"&lt;/h4>
+            &lt;p>
+              to him/her. Not onece.&lt;br>&lt;/br>If you want that, you can do it
+              over and over again ;-)
+            &lt;/p>
+          &lt;/Row>
+        &lt;/Col>
+
+        &lt;Col>
+          &lt;Row>
+            {" "}
+            &lt;Image
+              src="/images/test3.png"
+              alt="DescribeImageTwo"
+              width={200}
+              height={200}
+            />
+          &lt;/Row>
+          &lt;Row className="m-5">
+            &lt;h4>
+              Let's share your photos!
+              &lt;br>&lt;/br>
+            &lt;/h4>
+            &lt;p>
+              You can share your wonderful photos!
+              &lt;br>&lt;/br>
+              Also, you can save your favorite photos.
+            &lt;/p>
+          &lt;/Row>
+        &lt;/Col>
+      &lt;/Row>
+    &lt;/Container>
+  )
+}
+
+/**
+ * 【Comment】口コミの表示
+ */
+export function Comment() {
+  return (
+    &lt;Container>
+      &lt;Row className="mx-5">
+        &lt;Col className="px-5">
+          {" "}
+          &lt;Image
+            src="/images/miina_round.jpg"
+            alt="CommentImageOne"
+            width={100}
+            height={100}
+          />
+        &lt;/Col>
+        &lt;Col className="px-5">
+          {" "}
+          &lt;Image
+            src="/images/mako_round.jpg"
+            alt="CommentImageTwo"
+            width={100}
+            height={100}
+          />
+        &lt;/Col>
+      &lt;/Row>
+
+      &lt;Row className="mx-5">
+        &lt;Col>
+          {" "}
+          Miina&lt;br>&lt;/br>“I want many fishes!!”
+        &lt;/Col>
+        &lt;Col>
+          {" "}
+          Mako&lt;br>&lt;/br>“They are all cute!I'm enjoying it!”
+        &lt;/Col>
+      &lt;/Row>
+    &lt;/Container>
+
+  )
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-components_AddImage.html">components/AddImage</a></li><li><a href="module-components_CanNotChangePassword.html">components/CanNotChangePassword</a></li><li><a href="module-components_CatPage.html">components/CatPage</a></li><li><a href="module-components_CatRow.html">components/CatRow</a></li><li><a href="module-components_ChangePassword.html">components/ChangePassword</a></li><li><a href="module-components_FavTab.html">components/FavTab</a></li><li><a href="module-components_mypage.html">components/mypage</a></li><li><a href="module-components_MyTab.html">components/MyTab</a></li><li><a href="module-components_search.html">components/search</a></li><li><a href="module-components_top.html">components/top</a></li><li><a href="module-lib_email.html">lib/email</a></li><li><a href="module-lib_fetchJson.html">lib/fetchJson</a></li><li><a href="module-lib_session.html">lib/session</a></li><li><a href="module-lib_useAllCatVotes.html">lib/useAllCatVotes</a></li><li><a href="module-lib_useAllFavorites.html">lib/useAllFavorites</a></li><li><a href="module-lib_useCats.html">lib/useCats</a></li><li><a href="module-lib_useCatSearch.html">lib/useCatSearch</a></li><li><a href="module-lib_useMyImages.html">lib/useMyImages</a></li><li><a href="module-lib_user.html">lib/user</a></li><li><a href="module-lib_useUser.html">lib/useUser</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sat Aug 28 2021 10:31:53 GMT+0700 (インドシナ時間)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

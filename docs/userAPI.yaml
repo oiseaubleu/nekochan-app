@@ -1,0 +1,258 @@
+openapi: "3.0.1"
+info:
+  title: ユーザー情報関連のAPI
+  description: ネコチャンアプリで使うユーザー情報関連のAPI
+  version: 0.0.1
+
+tags:
+  - name: userAPI
+    description: ユーザー情報関連のAPI
+
+paths:
+  ##################### user #########################
+  /api/user:
+    get:
+      summary: セッション情報からユーザーのログイン状態を返すAPI
+      description: |
+        セッションがあるかどうかをcookieみてチェックしてセッションがあるときは、セッションの中のユーザ情報をブラウザに返す
+
+        lib/useUserで使う。
+      tags:
+        - userAPI
+      parameters: #クッキーとかpathとかクエリパラメータで値をもらうときはparametersを使う https://swagger.io/docs/specification/describing-parameters/#cookie-parameters
+        - in: cookie
+          name: nekochan_mogumogu_cookie
+          description: ironsessionで発行しているcookie
+          schema:
+            type: string
+            description: iron-sessionが設定するCookie。中身は暗号化されているのであまり気にしない。
+      responses:
+        "200":
+          description: "ブラウザから受け取ったセッション情報にuserキーで紐づく情報がある場合はisLoggedIn:true, userの情報を返す。ない（null）場合はisLoggeIn:falseだけを返す"
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/LogInStatus"
+                  - $ref: "#/components/schemas/LogInStatusWithUser"
+
+  #################### addAccount ##########################
+  /api/users/addAccount:
+    post:
+      summary: アカウント追加API
+      description: アカウント情報として渡された内容のチェック、登録をする。SignUpコンポーネントで使う。
+      tags:
+        - userAPI
+      requestBody: #ふつうにjsonでユーザ情報もらってるから
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                userId:
+                  type: string
+
+      responses:
+        "200":
+          description: "登録成功時のレスポンス。session情報にもisLoggedIn: trueとユーザＩＤをsaveする。"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+        "400":
+          description: "入力パラメータが不正だった場合はエラーを返す"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
+              examples:
+                すでにアカウントがあった場合:
+                  value:
+                    result: "FAILURE"
+                    errorCode: "E003"
+                    errorMessage: "Your email address is wrong, please use half-width character."
+
+                メールアドレスが「半角の英数字であり、かつ、半角の@が1つ」ではない場合:
+                  value:
+                    result: "FAILURE"
+                    errorCode: "E005"
+                    errorMessage: "The email address already exists."
+
+  #################### emailAuthentication ##########################
+  /api/users/emailAuthentication:
+    post:
+      summary: メール認証のAPI
+      description: |
+        1. メール認証のためのランダムな文字列をつくる
+
+        2. その文字列をデータベースに保存する
+
+        3. メールを送ってねっていうリクエストを送る
+
+        components/PasswordResetで使う。ユーザー情報はリクエストではなくセッションから取得。
+
+      tags:
+        - userAPI
+
+      responses:
+        "200":
+          description: "sendAuthenticationEmailで認証メール送信を無事に送れたかどうかの結果。"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+        "500":
+          description: "putRandomStringToDynamoDBでランダム文字列の登録に失敗するか、認証メールの送信に失敗したときのエラー。"
+
+  #################### forChangePassword ##########################
+  /api/users/forChangePassword:
+    post:
+      summary: パスワード更新のAPI
+      description: |
+        フォームから入れた前のパスワードと、
+        今テーブルに登録されている、これから更新するパスワードがそもそも同じかどうかの確認をして
+        パスワードの更新またはエラーを返す。components/ChangePasswordで使う。
+      tags:
+        - userAPI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                exPassword:
+                  type: string
+                newPassword:
+                  type: string
+                userId:
+                  type: string
+
+      responses:
+        "200":
+          description: "すでに登録されているパスワードと、入力した昔のパスワードが同じなら、新しいパスワードの更新をする。"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+        "400":
+          description: "すでに登録されているパスワードと、入力した昔のパスワードが違った場合、エラーを返す。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
+              example:
+                result: "FAILURE"
+                errorCode: "E006"
+                errorMessage: "The previous password is invalid."
+
+  #################### signIn ##########################
+  /api/users/signIn:
+    post:
+      summary: サインインのAPI
+      description: |
+        1. 入力されたuserIDのユーザーがいない場合はエラーを返す
+
+        2. 入力されたuserIDのユーザーがいる場合はパスワードを比較する
+
+        3. パスワードが合致した場合はセッション情報を追加し、successを返す
+
+        4. パスワードが合致しなかった場合はエラーを返す
+
+        components/SignInで使う。
+      tags:
+        - userAPI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                userId:
+                  type: string
+
+      responses:
+        "200":
+          description: "入力されたuserIDのユーザーがいる⇒パスワードが合致した場合。session情報にもisLoggedIn: trueとユーザＩＤをsaveする。"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Message:
+                    type: string
+        "400":
+          description: "入力されたuserIDのユーザーがいない場合、もしくはパスワードが合致しなかった場合にエラーを返す。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
+              examples:
+                入力されたuserIDのユーザーがいない場合:
+                  value:
+                    errorCode: "E001"
+                    errorMessage: "No such user found."
+
+                入力されたパスワードと登録されているパスワードが合致しなかった場合:
+                  value:
+                    errorCode: "E002"
+                    errorMessage: "Password is wrong."
+
+  #################### signOut ##########################
+  /api/users/signOut:
+    post:
+      summary: サインアウトのAPI
+      description: セッション情報を破棄して、isLoggedInをfalseにする。components/mypageで使う。
+      tags:
+        - userAPI
+      responses:
+        "200":
+          description: "入力されたuserIDのユーザーがいる⇒パスワードが合致した場合。session情報にもisLoggedIn: trueとユーザＩＤをsaveする。"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isLoggedIn:
+                    type: boolean
+                example:
+                  isLoggedIn: "false"
+
+components:
+  schemas: #新しいコンポーネントはschemasの下に追加する
+    ####ここから
+    ErrorObject:
+      properties:
+        result:
+          type: string
+        errorCode:
+          type: string
+        errorMessage:
+          type: string
+    ####ここまで
+    LogInStatus:
+      properties:
+        isLoggedIn:
+          type: boolean
+
+    LogInStatusWithUser:
+      properties:
+        isLoggedIn:
+          type: boolean
+        userId:
+          type: string

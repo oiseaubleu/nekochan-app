@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/FavTab.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/FavTab.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>///////////////////////////////////////////////////////////////////////////////////////////////
+// Favoriteタブ関係のコンポーネント
+///////////////////////////////////////////////////////////////////////////////////////////////
+import React, { PureComponent, useEffect, useState } from "react"
+import Button from "react-bootstrap/Button"
+import Image from "next/image"
+import Container from "react-bootstrap/Container"
+import Row from "react-bootstrap/Row"
+import Col from "react-bootstrap/Col"
+
+/**
+ * 【FavTab】お気に入りネコチャンタブの表示する default function
+ * @module
+ * @param {object} props Propsとして引数を受け取る。
+ * @param {boolean} props.isSelected お気に入りタブそのものが選ばれているかどうかのBoolean
+ * @param {object[]} props.favList 検索した結果のネコの情報がオブジェクトで配列に入っている [{ imageId ,imageUrl , votes, favorite }]
+ * @param {function} props.CatGreet 押すとvotesに+1する関数
+ * @param {function} props.removeFav 押すとお気に入りから削除する関数
+ */
+export default function FavTab({ isSelected, favList, catGreet, removeFav }) {
+  let [currentCatNum, setCurrentCatNum] = useState(5) //現在表示されているネコの数
+  let currentFavCats = favList.slice(0, currentCatNum) //現在表示しているネコの情報
+  //表示されているネコの数を変化させる関数↓
+  const moreAndMore = () => {
+    setCurrentCatNum((prev) => prev + 5)
+  }
+
+  const handlePageClick = (data) => {
+   
+    let selected = data.selected
+    setCurrentPageNum(selected)
+  }
+
+  let favTabAppear
+  let loadMoreAppear
+  //もし、currentCatNumがfavList.length以上になったらmoreボタンはもういらないので出さない
+  if (currentCatNum &lt; favList.length) {
+    loadMoreAppear = &lt;LoadMoreButton moreAndMore={moreAndMore} />
+  }
+
+  if (favList.length === 0 || !isSelected) {
+    favTabAppear = &lt;>Let's search your favorite😻!!&lt;/>
+  } else {
+   
+    favTabAppear = (
+      &lt;Container>
+        {currentFavCats.map(
+          (
+            favcatInfo 
+          ) => (
+            &lt;Col>
+              &lt;FavRow
+                favoriteId={favcatInfo.favorite?.favoriteId}
+                favcatImageId={favcatInfo.imageId}
+                favcatUrl={favcatInfo.imageUrl}
+                favcatVotes={favcatInfo.votes}
+                favcatDate={favcatInfo.favorite?.created_at}
+                catGreet={catGreet}
+                removeFav={removeFav}
+              />
+            &lt;/Col>
+          )
+        )}
+        {loadMoreAppear}
+      &lt;/Container>
+    )
+  }
+  return &lt;> {favTabAppear}&lt;/>
+}
+
+/**
+ * 【LoadMoreButton】LOAD MOREボタンの表示
+ * @param {function} props.moreAndMore 押すと表示されるネコチャンの数を変化させる関数
+ */
+export function LoadMoreButton({ moreAndMore }) {
+  return (
+    &lt;Button variant="secondary" onClick={moreAndMore}>
+      LOAD MORE ...🐈🐈🐈
+    &lt;/Button>
+  )
+}
+
+/**
+ * 【FavRow】お気に入りネコチャン１匹を表示するための関数
+ * @param {object} props Propsとして引数を受け取る。
+ * @param {string} props.favcatImageId お気に入りネコチャンのimageId
+ * @param {string} props.favcatUrl お気に入りネコチャンのURL
+ * @param {number} props.favcatVotes お気に入りネコチャンの魚数
+ * @param {date} props.favcatDate お気に入りネコチャンにした日
+ * @param {function} props.catGreet 押すとvotesに+1する関数
+ * @param {string} props.favoriteId お気に入りネコチャンのfavoriteId
+ * @param {function} props.removeFav 押すとお気に入りから削除する関数
+ */
+export function FavRow({
+  favcatImageId,
+  favcatUrl,
+  favcatVotes,
+  favcatDate,
+  catGreet,
+  favoriteId,
+  removeFav,
+}) {
+  
+  let favcatDateAppear = ""
+  if (favcatDate) {
+    const favDate = new Date(favcatDate)
+    const year = favDate.getFullYear()
+    const month = favDate.getMonth() + 1
+    const date = favDate.getDate()
+    favcatDateAppear = `${year}/${month}/${date}`
+  }
+  return (
+    &lt;Row>
+      {" "}
+      &lt;Col>
+        &lt;Row>You added at {favcatDateAppear}.&lt;/Row>
+        &lt;Row>
+          🐟{favcatVotes} &amp;nbsp;&amp;nbsp;
+          &lt;CatGreetButton catGreet={catGreet} favcatImageId={favcatImageId} />
+        &lt;/Row>
+        &lt;Row>
+          &lt;DeleteFavorite favcatImageId={favcatImageId} removeFav={removeFav} />
+        &lt;/Row>
+      &lt;/Col>
+      &lt;Col>
+        &lt;Row>
+          {" "}
+          &lt;img
+            src={favcatUrl}
+            alt="Oops!  He/She looks shy..."
+            width="100%"
+            align="right"
+          />
+        &lt;/Row>
+      &lt;/Col>
+    &lt;/Row>
+  )
+}
+/**
+ * 【CatGreetButton】おさかなボタンの実装
+ * @param {object} props Propsとして引数を受け取る。
+ * @param {string} props.favcatImageId お気に入りネコチャンのimageId
+ * @param {function} props.catGreet 押すとvotesに+1する関数
+ */
+export function CatGreetButton({ catGreet, favcatImageId }) {
+  return (
+    &lt;div>
+      {" "}
+      &lt;Button variant="outline-info" onClick={() => catGreet(favcatImageId)}>
+        &lt;Image src="/images/fish1.png" height={32} width={32} alt="送信" />
+      &lt;/Button>
+    &lt;/div>
+  )
+}
+
+/**
+ * 【DeleteFavorite】お気に入りから削除するボタンの実装
+ * @param {object} props Propsとして引数を受け取る。
+ * @param {string} props.favcatImageId お気に入りネコチャンのimageId
+ * @param {function} props.removeFav 押すとお気に入りから削除する関数
+ */
+export function DeleteFavorite({ removeFav, favcatImageId }) {
+  return (
+    &lt;div>
+      &lt;Button variant="link" onClick={() => removeFav(favcatImageId)}>
+        Remove from FAV
+      &lt;/Button>
+    &lt;/div>
+  )
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-components_AddImage.html">components/AddImage</a></li><li><a href="module-components_CanNotChangePassword.html">components/CanNotChangePassword</a></li><li><a href="module-components_CatPage.html">components/CatPage</a></li><li><a href="module-components_CatRow.html">components/CatRow</a></li><li><a href="module-components_ChangePassword.html">components/ChangePassword</a></li><li><a href="module-components_FavTab.html">components/FavTab</a></li><li><a href="module-components_mypage.html">components/mypage</a></li><li><a href="module-components_MyTab.html">components/MyTab</a></li><li><a href="module-components_search.html">components/search</a></li><li><a href="module-components_top.html">components/top</a></li><li><a href="module-lib_email.html">lib/email</a></li><li><a href="module-lib_fetchJson.html">lib/fetchJson</a></li><li><a href="module-lib_session.html">lib/session</a></li><li><a href="module-lib_useAllCatVotes.html">lib/useAllCatVotes</a></li><li><a href="module-lib_useAllFavorites.html">lib/useAllFavorites</a></li><li><a href="module-lib_useCats.html">lib/useCats</a></li><li><a href="module-lib_useCatSearch.html">lib/useCatSearch</a></li><li><a href="module-lib_useMyImages.html">lib/useMyImages</a></li><li><a href="module-lib_user.html">lib/user</a></li><li><a href="module-lib_useUser.html">lib/useUser</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sat Aug 28 2021 10:31:53 GMT+0700 (インドシナ時間)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

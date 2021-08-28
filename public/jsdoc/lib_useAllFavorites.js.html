@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: lib/useAllFavorites.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: lib/useAllFavorites.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>///////////////////////////////////////////////////////////////////////////////////////////////
+// ブラウザ側の処理
+///////////////////////////////////////////////////////////////////////////////////////////////
+import { useState, useEffect } from "react"
+
+const DEFAULT_HEADER = { "x-api-key": process.env.NEXT_PUBLIC_CAT_API_KEY }
+//const SUB_ID_DEFAULT = "your-user-korekana";
+
+/**
+ * 【useAllFavorites】CatAPIからお気に入りのネコチャン情報を取ってくる・CatAPIにお気に入りのネコチャンを登録・削除するカスタムフック。
+ * ※subIdは、getAllFavorites、pushFavでのみ使用
+ * @module
+ * @param {string} subId
+ * @returns {array} [allCatFavorites, pushFav, pushRemove, RefreshCatFavorites]
+ * @returns {Object} allCatFavorites　指定のsubIdのお気に入りネコチャン情報
+ * @returns {function} pushFav 　CatAPIにお気に入りを登録する関数
+ * @returns {function} pushRemove CatAPIにお気に入り解除をさせる関数
+ * @returns {function} RefreshCatFavorites お気に入りのネコチャン情報をリフレッシュする関数
+ *
+ */
+export default function useAllFavorites(subId) {
+  const [allCatFavorites, setAllCatFavorites] = useState([])
+
+  const RefreshCatFavorites = () => {
+    setAllCatFavorites([])
+    getAllFavorites(subId)
+  }
+
+  /**
+   * 【getAllFvorites】すべてのネコチャンのお気に入り情報をCatAPIから取ってきてallCatFavoritesに入れる関数 [GET]
+   * @param {string} subId
+   * @param {number} limit　1ページ分として、いくつのデータをとってくるか（これは今のところ固定で100）
+   * @param {number} page　ページ数　０始まり
+   */
+  const getAllFavorites = (subId, limit = 100, page = 0) => {
+    const param = {
+      page,
+      limit,
+      sub_id: subId,
+    }
+    const query_params = new URLSearchParams(param)
+
+    fetch("https://api.thecatapi.com/v1/favourites?" + query_params, {
+      headers: DEFAULT_HEADER,
+    }).then((res) => {
+      res.json().then((data) => {
+        const favArr = data.map((obj) => ({
+          image_id: obj.image_id,
+          favoriteId: obj.id,
+          imageUrl: obj.image.url,
+          created_at: obj.created_at,
+         
+        }))
+        setAllCatFavorites((prev) =>
+          prev.concat(favArr).sort((a, b) => {
+            a.created_at &lt; b.created_at ? -1 : 1
+          })
+        )
+       
+      })
+
+      let paginationCount = Number(res.headers.get("pagination-count"))
+      if (paginationCount > limit * (page + 1)) {
+        getAllFavorites(subId, limit, page + 1) // 次のページの情報を取ってくる
+      }
+    })
+  }
+
+  /**
+   * 【pushFav】CatAPIにお気に入りを登録する関数　[POST]
+   * favボタンを押すと、お気に入り登録される
+   * @param {string} imageId
+   */
+  const pushFav = (imageId) => {
+    //APIに登録
+    ///登録したいオブジェクト
+    const favObj = {
+      image_id: imageId,
+      sub_id: subId,
+    }
+    //console.log("sending request", favObj)
+    ///登録処理
+    return (
+      fetch("https://api.thecatapi.com/v1/favourites/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...DEFAULT_HEADER },
+        body: JSON.stringify(favObj),
+      })
+        //登録に成功したらまた今のお気に入り情報を取ってきてsetStateしてほしい
+        .then((res) => res.json())
+        .then((body) => {
+          //setAllCatFavoritesもとりあえず更新(追加)しないと、正しく反映しない（次のライフサイクルメソッドまで最新の情報を取ってこれない）
+          setAllCatFavorites((prevAllCatFavorites) =>
+            prevAllCatFavorites.concat([
+              { image_id: imageId, favoriteId: body.id },
+            ])
+          )
+        })
+    )
+  }
+
+  /**
+   * 【pushRemove】CatAPIにお気に入り解除をさせる関数　[DELETE]
+   * Removeボタンを押すと、お気に入り解除される
+   * @param {string} imageId
+   */
+  const pushRemove = (imageId) => {
+    //DELETEはimageidではなくfavorite_idでやるのでfavorite_idを取ってくる
+    let favId = allCatFavorites
+      .map((catfav) => {
+        if (catfav.image_id === imageId) {
+          return catfav.favoriteId
+        }
+      })
+      .join("")
+
+    //APIにDELETEお願いする
+    ///APIへの処理ねがい
+    return (
+      fetch("https://api.thecatapi.com/v1/favourites/" + favId, {
+        method: "DELETE",
+        headers: DEFAULT_HEADER,
+      })
+        
+        .then((res) => res.json())
+        .then((body) => {
+         
+          setAllCatFavorites((prevAllCatFavorites) =>
+            prevAllCatFavorites.filter((fav) => fav.image_id !== imageId)
+          )
+        })
+    )
+  }
+
+  
+  useEffect(() => {
+    if (subId) {
+      // subIdがundefinedのときは意味ないので読み込まない
+      getAllFavorites(subId)
+    } 
+  }, [subId]) 
+
+  return [allCatFavorites, pushFav, pushRemove, RefreshCatFavorites]
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-components_AddImage.html">components/AddImage</a></li><li><a href="module-components_CanNotChangePassword.html">components/CanNotChangePassword</a></li><li><a href="module-components_CatPage.html">components/CatPage</a></li><li><a href="module-components_CatRow.html">components/CatRow</a></li><li><a href="module-components_ChangePassword.html">components/ChangePassword</a></li><li><a href="module-components_FavTab.html">components/FavTab</a></li><li><a href="module-components_mypage.html">components/mypage</a></li><li><a href="module-components_MyTab.html">components/MyTab</a></li><li><a href="module-components_search.html">components/search</a></li><li><a href="module-components_top.html">components/top</a></li><li><a href="module-lib_email.html">lib/email</a></li><li><a href="module-lib_fetchJson.html">lib/fetchJson</a></li><li><a href="module-lib_session.html">lib/session</a></li><li><a href="module-lib_useAllCatVotes.html">lib/useAllCatVotes</a></li><li><a href="module-lib_useAllFavorites.html">lib/useAllFavorites</a></li><li><a href="module-lib_useCats.html">lib/useCats</a></li><li><a href="module-lib_useCatSearch.html">lib/useCatSearch</a></li><li><a href="module-lib_useMyImages.html">lib/useMyImages</a></li><li><a href="module-lib_user.html">lib/user</a></li><li><a href="module-lib_useUser.html">lib/useUser</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sat Aug 28 2021 10:31:53 GMT+0700 (インドシナ時間)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
