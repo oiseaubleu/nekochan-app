@@ -127,7 +127,7 @@ export default function MyPage({ isGuest }) {
   let sideMenu
   if (isGuest) {
     sideMenu = (
-      <Col>
+      <Col sm={12} md={6}>
         {" "}
         <SignUp />{" "}
       </Col>
@@ -140,7 +140,7 @@ export default function MyPage({ isGuest }) {
     )
   } else {
     sideMenu = (
-      <Col>
+      <Col sm={12} md={6}>
         <Row>Welcome {user?.userId}!!</Row>
         <Row>
           <AddImage
@@ -165,7 +165,7 @@ export default function MyPage({ isGuest }) {
     <>
       <Container>
         <Row>
-          <Col>
+          <Col sm={12} md={6}>
             <MypageTabs
               tabSelection={tabSelection}
               selectedTab={selectedTab}

@@ -258,38 +258,6 @@ export function Comment() {
           </Row>
         </Col>
       </Row>
-
-      {/* <Row className="mx-5" style={{ height: "100px" }}>
-        <Col className="px-5" style={{ position: "relative" }}>
-          {" "}
-          <Image
-            src="/images/miina_round.jpg"
-            alt="CommentImageOne"
-            layout="fill"
-            objectFit="contain"
-          />
-        </Col>
-        <Col className="px-5" style={{ position: "relative" }}>
-          {" "}
-          <Image
-            src="/images/mako_round.jpg"
-            alt="CommentImageTwo"
-            layout="fill"
-            objectFit="contain"
-          />
-        </Col>
-      </Row>
-
-      <Row className="mx-5">
-        <Col>
-          {" "}
-          Miina<br></br>“I want many fishes!!”
-        </Col>
-        <Col>
-          {" "}
-          Mako<br></br>“They are all cute!I'm enjoying it!”
-        </Col>
-      </Row> */}
     </Container>
   )
 }
