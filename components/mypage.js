@@ -245,7 +245,7 @@ export function MypageTabs({
   if (isGuest) {
     userTab = (
       <Tabs defaultActiveKey="searchPhotosTab" id="uncontrolled-tab-example">
-        <Tab eventKey="searchPhotosTab" title="Search Cats">
+        <Tab eventKey="searchPhotosTab" title="Search Cats" sm={4}>
           <CatSearch
             isGuest={isGuest}
             catInfo={cats}
@@ -257,11 +257,11 @@ export function MypageTabs({
           />
         </Tab>
 
-        <Tab eventKey="favTab" title="My Favorite">
+        <Tab eventKey="favTab" title="My Favorite" sm={4}>
           Please sign UP!!!
         </Tab>
 
-        <Tab eventKey="myPageTab" title="My Pic">
+        <Tab eventKey="myPageTab" title="My Pic" sm={4}>
           Please sign UP!!!
         </Tab>
       </Tabs>
@@ -273,7 +273,7 @@ export function MypageTabs({
         id="uncontrolled-tab-example"
         onSelect={(eventKey) => tabSelection(eventKey)}
       >
-        <Tab eventKey="searchPhotosTab" title="Search Cats">
+        <Tab eventKey="searchPhotosTab" title="Search Cats" sm={4}>
           <CatSearch
             isGuest={isGuest}
             catInfo={cats}
@@ -285,7 +285,7 @@ export function MypageTabs({
           />
         </Tab>
 
-        <Tab eventKey="favTab" title="My Favorite">
+        <Tab eventKey="favTab" title="My Favorite" sm={4}>
           <FavTab
             isSelected={selectedTab === "favTab"}
             favList={cats}
@@ -294,7 +294,7 @@ export function MypageTabs({
           />
         </Tab>
 
-        <Tab eventKey="myPageTab" title="My Pic">
+        <Tab eventKey="myPageTab" title="My Pic" sm={4}>
           <MyTab myImages={myImages} deleteMyUploadPic={deleteMyUploadPic} />
         </Tab>
       </Tabs>
