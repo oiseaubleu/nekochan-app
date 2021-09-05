@@ -11,7 +11,7 @@
     "aws-sdk": "^2.907.0",
     "bcrypt": "^5.0.1",
     "bootstrap": "^4.6.0",
-    "next": "^10.0.0",
+    "next": "^11.1.2",
     "next-iron-session": "^4.1.13",
     "prettier": "^2.3.2",
     "puid": "^1.0.7",
