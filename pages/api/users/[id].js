@@ -3,7 +3,7 @@
 //expressと一緒。リクエスト（DELETEとか）を受け取ったら、何をして、ブラウザとかReactに何を返すのか決めてるとこ
 //今回はnext.jsを使ってる
 //https://nextjs-ja-translation-docs.vercel.app/docs/api-routes/introduction
-import { resolveHref } from "next/dist/next-server/lib/router/router"
+
 import { getUserFromDynamoDB, putUserToDynamoDB } from "../../../lib/user"
 //http://localhost:3000/api/users/s28@gmail.comみたいな感じでみる
 // export default function getUserInfo(req, res) {
