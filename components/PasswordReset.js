@@ -54,7 +54,7 @@ export default function PasswordReset() {
   return (
     <>
       <Button variant="warning" onClick={handleShow}>
-        RESET your password
+        CHANGE your password
       </Button>
       <Modal show={show} onHide={handleClose}>
         <Modal.Header>Password Reset</Modal.Header>
@@ -77,7 +77,6 @@ export default function PasswordReset() {
               </Button>
             </Col>
           </Row>
-  
         </Modal.Footer>
       </Modal>
     </>
